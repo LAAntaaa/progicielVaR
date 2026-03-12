@@ -64,135 +64,681 @@ st.set_page_config(
 
 st.markdown("""
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Sora:wght@300;400;600;700&family=JetBrains+Mono:wght@400;600&display=swap');
+/* ══════════════════════════════════════════════════════════
+   VaR Analytics Suite — Design System "Obsidian Terminal"
+   Fonts : Outfit (display) + DM Mono (data)
+   Palette : #07090F base · #00D4FF cyan · #F0B429 amber
+             #FF4D6D risk-red · #00C896 signal-green
+   ══════════════════════════════════════════════════════════ */
 
-html, body, [class*="css"] { font-family: 'Sora', sans-serif !important; }
-.stApp { background: linear-gradient(135deg, #0B1628 0%, #0d1e38 60%, #091422 100%); }
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&display=swap');
 
+/* ── Tokens ───────────────────────────────────────────── */
+:root {
+  --bg-void:       #07090F;
+  --bg-deep:       #0C0F1A;
+  --bg-surface:    #111827;
+  --bg-raised:     #1a2235;
+  --bg-glass:      rgba(17,24,37,0.72);
+
+  --cyan:          #00D4FF;
+  --cyan-dim:      rgba(0,212,255,0.12);
+  --cyan-glow:     rgba(0,212,255,0.25);
+
+  --amber:         #F0B429;
+  --amber-dim:     rgba(240,180,41,0.10);
+  --amber-glow:    rgba(240,180,41,0.22);
+
+  --risk-red:      #FF4D6D;
+  --risk-red-dim:  rgba(255,77,109,0.10);
+
+  --signal-green:  #00C896;
+  --signal-dim:    rgba(0,200,150,0.10);
+
+  --txt-primary:   #E8EDF5;
+  --txt-secondary: #7A8BA8;
+  --txt-muted:     #3D4F6B;
+
+  --border-subtle: rgba(0,212,255,0.08);
+  --border-dim:    rgba(0,212,255,0.16);
+
+  --radius-sm:     6px;
+  --radius-md:     10px;
+  --radius-lg:     16px;
+
+  --shadow-card:   0 4px 24px rgba(0,0,0,0.5), 0 1px 0 rgba(255,255,255,0.03) inset;
+  --shadow-glow-c: 0 0 20px rgba(0,212,255,0.15);
+  --shadow-glow-a: 0 0 20px rgba(240,180,41,0.15);
+
+  --font-ui:   'Outfit', sans-serif;
+  --font-data: 'DM Mono', monospace;
+}
+
+/* ── Reset & Base ────────────────────────────────────────── */
+html, body, [class*="css"] {
+    font-family: var(--font-ui) !important;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+}
+
+/* ── Fond principal : obsidian avec grain subtil ─────────── */
+.stApp {
+    background-color: var(--bg-void) !important;
+    background-image:
+        radial-gradient(ellipse 80% 50% at 20% -10%, rgba(0,212,255,0.06) 0%, transparent 60%),
+        radial-gradient(ellipse 60% 40% at 80% 110%, rgba(240,180,41,0.05) 0%, transparent 55%),
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.022'/%3E%3C/svg%3E") !important;
+}
+
+/* ── Sidebar ─────────────────────────────────────────────── */
 [data-testid="stSidebar"] {
-    background: linear-gradient(180deg, #0a1525 0%, #0c1a30 100%) !important;
-    border-right: 1px solid rgba(201,168,76,0.15) !important;
+    background: var(--bg-deep) !important;
+    border-right: 1px solid var(--border-subtle) !important;
+}
+[data-testid="stSidebar"]::before {
+    content: '';
+    position: absolute; top: 0; left: 0; right: 0; height: 3px;
+    background: linear-gradient(90deg, var(--cyan), var(--amber), var(--cyan));
+    background-size: 200% 100%;
+    animation: shimmer 4s linear infinite;
+}
+@keyframes shimmer {
+    0%   { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
 }
 [data-testid="stSidebar"] .stSelectbox label,
 [data-testid="stSidebar"] p,
-[data-testid="stSidebar"] span { color: #8aa0bc !important; font-size: 12px !important; }
+[data-testid="stSidebar"] span {
+    color: var(--txt-secondary) !important;
+    font-size: 12px !important;
+    font-family: var(--font-ui) !important;
+}
 
+/* ── Titres ──────────────────────────────────────────────── */
 h1 {
-    font-family: 'Sora', sans-serif !important;
-    background: linear-gradient(90deg, #C9A84C, #e8c56a) !important;
+    font-family: var(--font-ui) !important;
+    font-size: 2rem !important;
+    font-weight: 800 !important;
+    letter-spacing: -0.5px !important;
+    background: linear-gradient(120deg, #fff 0%, var(--cyan) 45%, var(--amber) 100%) !important;
     -webkit-background-clip: text !important;
     -webkit-text-fill-color: transparent !important;
-    font-size: 1.9rem !important; font-weight: 700 !important;
+    background-clip: text !important;
+    line-height: 1.15 !important;
+    margin-bottom: 4px !important;
 }
-h2 { color: #d0daea !important; font-size: 1.15rem !important; font-weight: 600 !important; }
-h3 { color: #C9A84C !important; font-size: 1rem !important; font-weight: 600 !important; }
+h2 {
+    color: var(--txt-primary) !important;
+    font-size: 1.1rem !important;
+    font-weight: 600 !important;
+    letter-spacing: -0.2px !important;
+}
+h3 {
+    color: var(--amber) !important;
+    font-size: 0.95rem !important;
+    font-weight: 600 !important;
+}
 
+/* ── Metric cards — glassmorphisme ───────────────────────── */
 [data-testid="metric-container"] {
-    background: rgba(17,31,53,0.85) !important;
-    border: 1px solid rgba(201,168,76,0.18) !important;
-    border-radius: 10px !important;
-    padding: 14px 16px !important;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.3) !important;
+    background: var(--bg-glass) !important;
+    border: 1px solid var(--border-dim) !important;
+    border-radius: var(--radius-md) !important;
+    padding: 16px 18px 14px !important;
+    box-shadow: var(--shadow-card) !important;
+    backdrop-filter: blur(12px) !important;
+    -webkit-backdrop-filter: blur(12px) !important;
     position: relative; overflow: hidden;
+    transition: border-color 0.25s, box-shadow 0.25s !important;
+}
+[data-testid="metric-container"]:hover {
+    border-color: rgba(0,212,255,0.35) !important;
+    box-shadow: var(--shadow-card), var(--shadow-glow-c) !important;
 }
 [data-testid="metric-container"]::before {
-    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
-    background: linear-gradient(90deg, #C9A84C, #2E6FD4);
+    content: '';
+    position: absolute; top: 0; left: 0; right: 0; height: 1px;
+    background: linear-gradient(90deg,
+        transparent 0%, var(--cyan) 30%, var(--amber) 70%, transparent 100%);
+    opacity: 0.6;
+}
+[data-testid="metric-container"]::after {
+    content: '';
+    position: absolute; bottom: 0; right: 0;
+    width: 60px; height: 60px;
+    background: radial-gradient(circle, var(--cyan-dim) 0%, transparent 70%);
 }
 [data-testid="metric-container"] [data-testid="stMetricLabel"] {
-    color: #8aa0bc !important; font-size: 10px !important;
-    text-transform: uppercase; letter-spacing: 1px;
-    font-family: 'JetBrains Mono', monospace !important;
+    color: var(--txt-secondary) !important;
+    font-size: 9.5px !important;
+    font-family: var(--font-data) !important;
+    text-transform: uppercase !important;
+    letter-spacing: 1.2px !important;
+    font-weight: 400 !important;
 }
 [data-testid="metric-container"] [data-testid="stMetricValue"] {
-    color: #C9A84C !important; font-size: 1.4rem !important;
-    font-family: 'JetBrains Mono', monospace !important; font-weight: 700 !important;
+    color: var(--cyan) !important;
+    font-size: 1.55rem !important;
+    font-family: var(--font-data) !important;
+    font-weight: 500 !important;
+    letter-spacing: -0.5px !important;
+}
+[data-testid="metric-container"] [data-testid="stMetricDelta"] {
+    font-family: var(--font-data) !important;
+    font-size: 10px !important;
 }
 
-[data-testid="stDataFrame"] {
-    border: 1px solid rgba(201,168,76,0.15) !important;
-    border-radius: 8px !important;
-}
-
+/* ── Boutons ─────────────────────────────────────────────── */
 .stButton > button {
-    background: linear-gradient(135deg, #1a3060, #243d78) !important;
-    color: #C9A84C !important; border: 1px solid rgba(201,168,76,0.4) !important;
-    border-radius: 8px !important; font-family: 'Sora', sans-serif !important;
-    font-weight: 600 !important; font-size: 13px !important;
-    padding: 8px 22px !important; transition: all 0.2s !important;
+    background: var(--bg-raised) !important;
+    color: var(--txt-primary) !important;
+    border: 1px solid var(--border-dim) !important;
+    border-radius: var(--radius-sm) !important;
+    font-family: var(--font-ui) !important;
+    font-weight: 500 !important;
+    font-size: 13px !important;
+    padding: 9px 20px !important;
+    letter-spacing: 0.2px !important;
+    transition: all 0.18s cubic-bezier(.4,0,.2,1) !important;
+    position: relative !important;
+    overflow: hidden !important;
+}
+.stButton > button::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: linear-gradient(135deg, var(--cyan-dim), transparent);
+    opacity: 0;
+    transition: opacity 0.18s;
 }
 .stButton > button:hover {
-    background: linear-gradient(135deg, #243d78, #2E6FD4) !important;
-    border-color: #C9A84C !important;
-    box-shadow: 0 4px 16px rgba(201,168,76,0.25) !important;
+    border-color: var(--cyan) !important;
+    color: var(--cyan) !important;
+    box-shadow: 0 0 0 1px var(--cyan-dim), var(--shadow-glow-c) !important;
     transform: translateY(-1px) !important;
 }
+.stButton > button:hover::before { opacity: 1 !important; }
+.stButton > button:active { transform: translateY(0) !important; }
+
+/* Bouton primary (CTA principal) */
 .stButton > button[kind="primary"] {
-    background: linear-gradient(135deg, #C9A84C, #e8c56a) !important;
-    color: #0B1628 !important; border-color: transparent !important;
+    background: linear-gradient(135deg, #0099bb 0%, var(--cyan) 50%, #00aacc 100%) !important;
+    color: var(--bg-void) !important;
+    border: none !important;
+    font-weight: 700 !important;
+    box-shadow: 0 4px 20px var(--cyan-glow) !important;
+}
+.stButton > button[kind="primary"]:hover {
+    box-shadow: 0 6px 28px rgba(0,212,255,0.45) !important;
+    transform: translateY(-2px) !important;
+    color: var(--bg-void) !important;
 }
 
+/* ── Selectbox / Multiselect ─────────────────────────────── */
 .stSelectbox > div > div,
 .stMultiSelect > div > div {
-    background: rgba(17,31,53,0.9) !important;
-    border: 1px solid rgba(201,168,76,0.25) !important;
-    border-radius: 8px !important; color: #d0daea !important;
+    background: var(--bg-raised) !important;
+    border: 1px solid var(--border-dim) !important;
+    border-radius: var(--radius-sm) !important;
+    color: var(--txt-primary) !important;
+    font-family: var(--font-ui) !important;
+    transition: border-color 0.15s !important;
+}
+.stSelectbox > div > div:focus-within,
+.stMultiSelect > div > div:focus-within {
+    border-color: var(--cyan) !important;
+    box-shadow: 0 0 0 3px var(--cyan-dim) !important;
 }
 
-.stSlider > div > div > div > div {
-    background: linear-gradient(90deg, #C9A84C, #2E6FD4) !important;
+/* ── Number input ────────────────────────────────────────── */
+.stNumberInput > div > div > input {
+    background: var(--bg-raised) !important;
+    border: 1px solid var(--border-dim) !important;
+    border-radius: var(--radius-sm) !important;
+    color: var(--txt-primary) !important;
+    font-family: var(--font-data) !important;
+}
+.stNumberInput > div > div > input:focus {
+    border-color: var(--cyan) !important;
+    box-shadow: 0 0 0 3px var(--cyan-dim) !important;
 }
 
+/* ── Radio buttons ───────────────────────────────────────── */
+[data-testid="stRadio"] > div { gap: 8px !important; }
+[data-testid="stRadio"] label {
+    background: var(--bg-raised) !important;
+    border: 1px solid var(--border-subtle) !important;
+    border-radius: var(--radius-sm) !important;
+    padding: 6px 14px !important;
+    color: var(--txt-secondary) !important;
+    font-size: 12px !important;
+    cursor: pointer;
+    transition: all 0.15s !important;
+}
+[data-testid="stRadio"] label:has(input:checked) {
+    border-color: var(--cyan) !important;
+    color: var(--cyan) !important;
+    background: var(--cyan-dim) !important;
+}
+
+/* ── Slider ──────────────────────────────────────────────── */
+.stSlider [data-baseweb="slider"] [role="slider"] {
+    background: var(--cyan) !important;
+    box-shadow: 0 0 8px var(--cyan-glow) !important;
+    border: 2px solid var(--bg-void) !important;
+}
+.stSlider [data-baseweb="slider"] [data-testid="stTickBar"] > div {
+    background: linear-gradient(90deg, var(--cyan), var(--amber)) !important;
+}
+
+/* ── Date input ──────────────────────────────────────────── */
+.stDateInput > div > div > input {
+    background: var(--bg-raised) !important;
+    border: 1px solid var(--border-dim) !important;
+    color: var(--txt-primary) !important;
+    border-radius: var(--radius-sm) !important;
+    font-family: var(--font-data) !important;
+}
+
+/* ── DataFrames ──────────────────────────────────────────── */
+[data-testid="stDataFrame"] {
+    border: 1px solid var(--border-dim) !important;
+    border-radius: var(--radius-md) !important;
+    overflow: hidden !important;
+    box-shadow: var(--shadow-card) !important;
+}
+[data-testid="stDataFrame"] th {
+    background: var(--bg-surface) !important;
+    color: var(--txt-secondary) !important;
+    font-family: var(--font-data) !important;
+    font-size: 10.5px !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.8px !important;
+    border-bottom: 1px solid var(--border-dim) !important;
+}
+[data-testid="stDataFrame"] td {
+    font-family: var(--font-data) !important;
+    font-size: 12px !important;
+    color: var(--txt-primary) !important;
+}
+
+/* ── Expander ────────────────────────────────────────────── */
 .streamlit-expanderHeader {
-    background: rgba(17,31,53,0.6) !important;
-    border: 1px solid rgba(201,168,76,0.15) !important;
-    border-radius: 8px !important; color: #d0daea !important;
+    background: var(--bg-surface) !important;
+    border: 1px solid var(--border-subtle) !important;
+    border-radius: var(--radius-sm) !important;
+    color: var(--txt-secondary) !important;
+    font-family: var(--font-ui) !important;
+    font-size: 13px !important;
+    transition: all 0.15s !important;
+}
+.streamlit-expanderHeader:hover {
+    border-color: var(--border-dim) !important;
+    color: var(--txt-primary) !important;
+}
+.streamlit-expanderContent {
+    border: 1px solid var(--border-subtle) !important;
+    border-top: none !important;
+    border-radius: 0 0 var(--radius-sm) var(--radius-sm) !important;
+    background: var(--bg-deep) !important;
 }
 
+/* ── Alertes Streamlit ───────────────────────────────────── */
+.stAlert {
+    border-radius: var(--radius-sm) !important;
+    font-family: var(--font-ui) !important;
+    font-size: 13px !important;
+}
+
+/* ── Divider ─────────────────────────────────────────────── */
+hr {
+    border: none !important;
+    border-top: 1px solid var(--border-subtle) !important;
+    margin: 20px 0 !important;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   COMPOSANTS CUSTOM
+   ═══════════════════════════════════════════════════════════ */
+
+/* ── VaR card ────────────────────────────────────────────── */
 .var-card {
-    background: rgba(17,31,53,0.85);
-    border: 1px solid rgba(201,168,76,0.18);
-    border-radius: 10px; padding: 16px 20px;
-    margin-bottom: 12px; position: relative; overflow: hidden;
+    background: var(--bg-glass);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid var(--border-dim);
+    border-radius: var(--radius-md);
+    padding: 18px 20px 16px;
+    margin-bottom: 12px;
+    position: relative;
+    overflow: hidden;
+    transition: border-color 0.2s, transform 0.2s, box-shadow 0.2s;
+    cursor: default;
+}
+.var-card:hover {
+    border-color: rgba(0,212,255,0.32);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-card), var(--shadow-glow-c);
 }
 .var-card::before {
-    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
-    background: linear-gradient(90deg, #C9A84C, #2E6FD4);
+    content: '';
+    position: absolute; top: 0; left: 0; right: 0; height: 1px;
+    background: linear-gradient(90deg,
+        transparent, var(--cyan) 30%, var(--amber) 70%, transparent);
+    opacity: 0.5;
 }
-.var-card-title { font-size: 11px; color: #8aa0bc; text-transform: uppercase;
-    letter-spacing: 1.5px; font-family: 'JetBrains Mono', monospace; margin-bottom: 6px; }
-.var-card-value { font-size: 22px; font-weight: 700; color: #e05252;
-    font-family: 'JetBrains Mono', monospace; }
-.var-card-pct { font-size: 11px; color: #8aa0bc; font-family: 'JetBrains Mono', monospace; }
-.var-card-es { font-size: 13px; color: #e87373; font-family: 'JetBrains Mono', monospace; margin-top: 4px; }
+.var-card::after {
+    content: '';
+    position: absolute; top: -30px; right: -30px;
+    width: 90px; height: 90px;
+    background: radial-gradient(circle, var(--cyan-dim) 0%, transparent 65%);
+    pointer-events: none;
+}
+.var-card-title {
+    font-size: 10px;
+    color: var(--txt-muted);
+    text-transform: uppercase;
+    letter-spacing: 1.8px;
+    font-family: var(--font-data);
+    font-weight: 400;
+    margin-bottom: 8px;
+}
+.var-card-value {
+    font-size: 26px;
+    font-weight: 300;
+    color: var(--risk-red);
+    font-family: var(--font-data);
+    letter-spacing: -1px;
+    line-height: 1.1;
+}
+.var-card-pct {
+    font-size: 11px;
+    color: var(--txt-secondary);
+    font-family: var(--font-data);
+    margin-top: 3px;
+}
+.var-card-es {
+    font-size: 12px;
+    color: rgba(255,77,109,0.7);
+    font-family: var(--font-data);
+    margin-top: 6px;
+    padding-top: 6px;
+    border-top: 1px solid var(--risk-red-dim);
+}
+
+/* ── Badge ───────────────────────────────────────────────── */
 .badge-rec {
-    display: inline-block; background: #C9A84C; color: #0B1628;
-    font-size: 9px; font-weight: 700; padding: 2px 7px; border-radius: 4px;
-    letter-spacing: 1px; font-family: 'JetBrains Mono', monospace; margin-left: 8px;
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    background: linear-gradient(135deg, var(--cyan), #0099bb);
+    color: var(--bg-void);
+    font-size: 8px;
+    font-weight: 700;
+    padding: 2px 8px 2px 6px;
+    border-radius: 20px;
+    letter-spacing: 0.8px;
+    font-family: var(--font-data);
+    margin-left: 8px;
+    text-transform: uppercase;
+    vertical-align: middle;
+    box-shadow: 0 2px 8px var(--cyan-glow);
 }
+
+/* ── Section header ──────────────────────────────────────── */
 .section-header {
-    border-left: 3px solid #C9A84C; padding-left: 12px;
-    margin: 24px 0 12px; font-size: 14px; font-weight: 600; color: #d0daea;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 28px 0 14px;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--txt-secondary);
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    font-family: var(--font-data);
 }
+.section-header::before {
+    content: '';
+    display: inline-block;
+    width: 3px; height: 16px;
+    background: linear-gradient(180deg, var(--cyan), var(--amber));
+    border-radius: 2px;
+    flex-shrink: 0;
+}
+.section-header::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(90deg, var(--border-dim), transparent);
+}
+
+/* ── Info box ────────────────────────────────────────────── */
 .info-box {
-    background: rgba(46,111,212,0.08); border: 1px solid rgba(46,111,212,0.25);
-    border-radius: 8px; padding: 14px 18px; margin: 12px 0;
-    font-size: 12.5px; color: #c0d0e8; line-height: 1.7;
+    background: rgba(0,212,255,0.04);
+    border: 1px solid rgba(0,212,255,0.14);
+    border-left: 3px solid var(--cyan);
+    border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+    padding: 14px 18px;
+    margin: 14px 0;
+    font-size: 12.5px;
+    color: var(--txt-secondary);
+    line-height: 1.75;
+    font-family: var(--font-ui);
 }
+
+/* ── Stress card ─────────────────────────────────────────── */
 .stress-card {
-    background: rgba(224,82,82,0.08); border: 1px solid rgba(224,82,82,0.25);
-    border-radius: 10px; padding: 14px 18px; margin-bottom: 10px;
+    background: var(--bg-glass);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(255,77,109,0.18);
+    border-radius: var(--radius-md);
+    padding: 16px 18px;
+    margin-bottom: 10px;
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.18s, border-color 0.18s;
 }
-.stress-title { font-size: 11px; color: #e87373; font-family: 'JetBrains Mono', monospace;
-    text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; }
-.stress-val { font-size: 20px; font-weight: 700; color: #e05252;
-    font-family: 'JetBrains Mono', monospace; }
+.stress-card:hover {
+    border-color: rgba(255,77,109,0.38);
+    transform: translateY(-1px);
+}
+.stress-card::after {
+    content: '';
+    position: absolute; top: -20px; right: -20px;
+    width: 70px; height: 70px;
+    background: radial-gradient(circle, var(--risk-red-dim), transparent 65%);
+}
+.stress-title {
+    font-size: 9.5px;
+    color: rgba(255,77,109,0.7);
+    font-family: var(--font-data);
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    margin-bottom: 8px;
+}
+.stress-val {
+    font-size: 24px;
+    font-weight: 300;
+    color: var(--risk-red);
+    font-family: var(--font-data);
+    letter-spacing: -0.8px;
+}
+
+/* ── Markowitz card ──────────────────────────────────────── */
 .markowitz-card {
-    background: rgba(29,184,122,0.07); border: 1px solid rgba(29,184,122,0.25);
-    border-radius: 10px; padding: 14px 18px; margin-bottom: 10px;
+    background: rgba(0,200,150,0.04);
+    border: 1px solid rgba(0,200,150,0.18);
+    border-radius: var(--radius-md);
+    padding: 16px 18px;
+    margin-bottom: 10px;
+    transition: transform 0.18s, border-color 0.18s;
 }
+.markowitz-card:hover {
+    border-color: rgba(0,200,150,0.35);
+    transform: translateY(-1px);
+}
+
+/* ── Spinner / Progress ──────────────────────────────────── */
+[data-testid="stSpinner"] {
+    color: var(--cyan) !important;
+}
+
+/* ── Scrollbar custom ────────────────────────────────────── */
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: var(--bg-deep); }
+::-webkit-scrollbar-thumb {
+    background: var(--border-dim);
+    border-radius: 10px;
+}
+::-webkit-scrollbar-thumb:hover { background: var(--cyan); }
+
+/* ── Animations d'entrée ─────────────────────────────────── */
+@keyframes fadeSlideUp {
+    from { opacity: 0; transform: translateY(12px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+.var-card, .stress-card, .markowitz-card, [data-testid="metric-container"] {
+    animation: fadeSlideUp 0.35s cubic-bezier(.4,0,.2,1) both;
+}
+
+/* ── Suppression éléments Streamlit indésirables ─────────── */
+#MainMenu, footer, [data-testid="stToolbar"] { display: none !important; }
+[data-testid="stHeader"] { background: transparent !important; }
+
+/* ═══════════════════════════════════════════════════════
+   FIX 1 — Bouton réouverture sidebar toujours visible
+   ═══════════════════════════════════════════════════════ */
+[data-testid="stSidebarCollapsedControl"] {
+    background: var(--bg-surface) !important;
+    border: 1px solid var(--border-hi) !important;
+    border-left: none !important;
+    border-radius: 0 var(--r-md) var(--r-md) 0 !important;
+    width: 28px !important;
+    height: 52px !important;
+    opacity: 1 !important;
+    box-shadow: 4px 0 16px rgba(0,212,255,0.10) !important;
+    transition: background 0.2s, border-color 0.2s, box-shadow 0.2s !important;
+    z-index: 9999 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+[data-testid="stSidebarCollapsedControl"]:hover {
+    background: var(--bg-raised) !important;
+    border-color: var(--cyan) !important;
+    box-shadow: 4px 0 24px var(--cyan-glow) !important;
+}
+[data-testid="stSidebarCollapsedControl"] button {
+    color: var(--cyan) !important;
+    background: transparent !important;
+    border: none !important;
+    opacity: 1 !important;
+    width: 100% !important; height: 100% !important;
+}
+[data-testid="stSidebarCollapsedControl"] svg {
+    color: var(--cyan) !important;
+    fill: var(--cyan) !important;
+    width: 14px !important; height: 14px !important;
+}
+[data-testid="stSidebar"] button[kind="headerNoPadding"],
+[data-testid="stSidebar"] [data-testid="baseButton-headerNoPadding"] {
+    color: var(--txt-secondary) !important;
+    opacity: 0.65 !important;
+    transition: all 0.15s !important;
+}
+[data-testid="stSidebar"] button[kind="headerNoPadding"]:hover,
+[data-testid="stSidebar"] [data-testid="baseButton-headerNoPadding"]:hover {
+    color: var(--cyan) !important;
+    opacity: 1 !important;
+}
+
+/* ═══════════════════════════════════════════════════════
+   FIX 2 — Fond animé
+   ═══════════════════════════════════════════════════════ */
+.stApp {
+    background-color: var(--bg-void) !important;
+    background-image: none !important;
+}
+#animated-bg {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    overflow: hidden;
+}
+#animated-bg .halo {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(90px);
+}
+#animated-bg .halo-1 {
+    width: 650px; height: 650px;
+    background: radial-gradient(circle, rgba(0,212,255,0.11), transparent 65%);
+    animation: haloFloat1 20s ease-in-out infinite alternate;
+}
+#animated-bg .halo-2 {
+    width: 550px; height: 550px;
+    background: radial-gradient(circle, rgba(240,180,41,0.08), transparent 65%);
+    animation: haloFloat2 26s ease-in-out infinite alternate;
+}
+#animated-bg .halo-3 {
+    width: 450px; height: 450px;
+    background: radial-gradient(circle, rgba(157,127,234,0.07), transparent 65%);
+    animation: haloFloat3 32s ease-in-out infinite alternate;
+}
+@keyframes haloFloat1 {
+    0%   { top: -8%;  left: -6%; }
+    40%  { top: 12%;  left: 22%; }
+    100% { top: -3%;  left: 42%; }
+}
+@keyframes haloFloat2 {
+    0%   { bottom: -8%; right: -4%; }
+    40%  { bottom: 22%; right: 18%; }
+    100% { bottom: 4%;  right: 44%; }
+}
+@keyframes haloFloat3 {
+    0%   { top: 38%; left: 52%; }
+    50%  { top: 18%; left: 72%; }
+    100% { top: 58%; left: 44%; }
+}
+#animated-bg .grid {
+    position: absolute; inset: 0;
+    background-image: radial-gradient(circle, rgba(0,212,255,0.16) 1px, transparent 1px);
+    background-size: 52px 52px;
+    animation: gridPulse 7s ease-in-out infinite;
+}
+@keyframes gridPulse {
+    0%,100% { opacity: 0.18; }
+    50%     { opacity: 0.30; }
+}
+#animated-bg .noise {
+    position: absolute; inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='0.025'/%3E%3C/svg%3E");
+    background-repeat: repeat;
+}
+#animated-bg .scanlines {
+    position: absolute; inset: 0;
+    background: repeating-linear-gradient(0deg, transparent, transparent 3px,
+        rgba(0,212,255,0.012) 3px, rgba(0,212,255,0.012) 4px);
+}
+[data-testid="stAppViewContainer"] > section { position: relative; z-index: 1; }
+[data-testid="stSidebar"] { position: relative !important; z-index: 10 !important; }
+
 </style>
 """, unsafe_allow_html=True)
+
+# ── Fond animé injecté dans le DOM (FIX 2) ───────────────────────────────────
+st.markdown("""
+<div id="animated-bg">
+  <div class="halo halo-1"></div>
+  <div class="halo halo-2"></div>
+  <div class="halo halo-3"></div>
+  <div class="grid"></div>
+  <div class="noise"></div>
+  <div class="scanlines"></div>
+</div>
+""", unsafe_allow_html=True)
+
 
 
 # ══════════════════════════════════════════════════════════════════════════════
@@ -405,22 +951,21 @@ def fig_frontiere_efficiente(opt_results: dict) -> plt.Figure:
             ax.add_collection(lc)
             # Zone ombragée sous la frontière
             ax.fill_between(vols_f, rets_f, min(rets_f),
-                            alpha=0.07, color="#2E6FD4", zorder=1)
+                            alpha=0.07, color="#00D4FF", zorder=1)
 
         # Actifs individuels
         mu      = opt_results["mu"]
         cov     = opt_results["cov"]
         tickers = opt_results["tickers"]
-        asset_colors = ["#2E6FD4","#06b6d4","#8b5cf6","#f97316",
-                        "#ec4899","#10b981","#f59e0b","#ef4444",
-                        "#3b82f6","#84cc16","#e879f9","#14b8a6",
-                        "#fb923c","#a78bfa","#34d399"]
+        asset_colors = ["#00D4FF","#F0B429","#00C896","#FF4D6D","#9D7FEA",
+                        "#FF7849","#FFD166","#4CC9F0","#F72585","#B5E48C",
+                        "#C77DFF","#06D6A0","#FFAA5B","#00B4D8","#FF9B54"]
         for i, t in enumerate(tickers):
             vol_i = np.sqrt(cov[i, i]) * 100
             mu_i  = mu[i] * 100
             col_i = asset_colors[i % len(asset_colors)]
             ax.scatter(vol_i, mu_i, s=55, color=col_i, zorder=6,
-                       alpha=0.85, edgecolors="#0d1e38", linewidths=0.8, marker="o")
+                       alpha=0.85, edgecolors="#07090F", linewidths=0.8, marker="o")
             ax.annotate(t, (vol_i, mu_i), fontsize=7.5, color=col_i,
                         fontweight="bold",
                         xytext=(5, 4), textcoords="offset points")
@@ -443,21 +988,21 @@ def fig_frontiere_efficiente(opt_results: dict) -> plt.Figure:
             ax.annotate(lbl, (v*100, r*100), fontsize=8.5, color=col,
                         fontweight="bold",
                         xytext=(9, 5), textcoords="offset points",
-                        bbox=dict(boxstyle="round,pad=0.25", fc="#0d1e38",
+                        bbox=dict(boxstyle="round,pad=0.25", fc="#07090F",
                                   ec=col, alpha=0.75, lw=0.8))
 
         ax.set_xlabel("Volatilité annualisée (%)", fontsize=10, labelpad=8)
         ax.set_ylabel("Rendement annualisé (%)", fontsize=10, labelpad=8)
         ax.set_title("Frontière Efficiente de Markowitz",
-                     fontsize=13, color="#C9A84C", pad=12, fontweight="bold")
+                     fontsize=13, color="#F0B429", pad=12, fontweight="bold")
         legend = ax.legend(fontsize=8.5, loc="lower right",
-                           framealpha=0.85, edgecolor="#2a3f5f",
-                           facecolor="#111f35", labelcolor="#d0daea")
+                           framealpha=0.85, edgecolor="#1a2235",
+                           facecolor="#111827", labelcolor="#d0daea")
         ax.tick_params(labelsize=8.5)
         ax.grid(True, alpha=0.18, linestyle="--")
         # Cadre sobre
         for spine in ax.spines.values():
-            spine.set_edgecolor("#2a3f5f")
+            spine.set_edgecolor("#1a2235")
         plt.tight_layout()
         return fig
 
@@ -469,9 +1014,9 @@ def fig_poids_portefeuilles(opt_results: dict) -> plt.Figure:
     accent  = ["#C9A84C", "#1db87a", "#a855f7"]
 
     # Palette étendue cohérente avec la frontière
-    PALETTE = ["#2E6FD4","#C9A84C","#1db87a","#e05252","#a855f7",
-               "#f97316","#06b6d4","#ec4899","#10b981","#f59e0b",
-               "#3b82f6","#84cc16","#14b8a6","#fb923c","#a78bfa"]
+    PALETTE = ["#00D4FF","#F0B429","#00C896","#FF4D6D","#9D7FEA",
+               "#FF7849","#00B4D8","#F72585","#06D6A0","#FFD166",
+               "#4CC9F0","#B5E48C","#06BEE1","#FFAA5B","#C77DFF"]
 
     with plt.rc_context(PLT_DARK):
         fig, axes = plt.subplots(1, 3, figsize=(13, 4.5))
@@ -493,7 +1038,7 @@ def fig_poids_portefeuilles(opt_results: dict) -> plt.Figure:
                 colors=pie_colors,
                 startangle=90,
                 pctdistance=0.72,
-                wedgeprops={"edgecolor": "#0d1e38", "linewidth": 1.8},
+                wedgeprops={"edgecolor": "#07090F", "linewidth": 1.8},
                 textprops={"fontsize": 7.5},
             )
             for text in texts:
@@ -501,12 +1046,12 @@ def fig_poids_portefeuilles(opt_results: dict) -> plt.Figure:
                 text.set_fontsize(7.5)
             for at in autotexts:
                 at.set_fontsize(7)
-                at.set_color("#0d1e38")
+                at.set_color("#07090F")
                 at.set_fontweight("bold")
 
             r, v, s = opt_results[key]["stats"]
             # Cercle central (donut effect)
-            centre = plt.Circle((0, 0), 0.42, color="#0d1e38", zorder=10)
+            centre = plt.Circle((0, 0), 0.42, color="#07090F", zorder=10)
             ax.add_patch(centre)
             ax.text(0, 0.08, f"{s:.2f}", ha="center", va="center",
                     fontsize=14, fontweight="bold", color=col, zorder=11)
@@ -575,32 +1120,32 @@ def fig_stress_comparaison(stress_results: dict, pv: float) -> plt.Figure:
 
         # ── Ax1 : barres horizontales ─────────────────────────────────────────
         bar_h1 = ax1.barh(x - 0.2, [abs(p) for p in pnls], 0.38,
-                          color="#e05252", alpha=0.85, label="P&L stressé")
+                          color="#FF4D6D", alpha=0.85, label="P&L stressé")
         bar_h2 = ax1.barh(x + 0.2, vars_nm, 0.38,
-                          color="#2E6FD4", alpha=0.65, label="VaR normale 99%")
+                          color="#00D4FF", alpha=0.65, label="VaR normale 99%")
 
         # Labels valeurs
         for bar in bar_h1:
             w = bar.get_width()
             ax1.text(w + max(vars_nm)*0.02, bar.get_y() + bar.get_height()/2,
                      f"{w:.0f}k", va="center", fontsize=7.5,
-                     color="#e05252", fontweight="bold")
+                     color="#FF4D6D", fontweight="bold")
 
         ax1.set_yticks(x)
         ax1.set_yticklabels(short_sc, fontsize=8.5)
         ax1.set_xlabel("k€", fontsize=9, labelpad=6)
         ax1.set_title("Impact P&L vs VaR normale", fontsize=11,
-                      color="#C9A84C", pad=10, fontweight="bold")
-        ax1.legend(fontsize=8.5, facecolor="#111f35", edgecolor="#2a3f5f",
+                      color="#F0B429", pad=10, fontweight="bold")
+        ax1.legend(fontsize=8.5, facecolor="#111827", edgecolor="#1a2235",
                    labelcolor="#d0daea")
         ax1.grid(axis="x", alpha=0.18, linestyle="--")
-        for spine in ax1.spines.values(): spine.set_edgecolor("#2a3f5f")
+        for spine in ax1.spines.values(): spine.set_edgecolor("#1a2235")
 
         # ── Ax2 : multiplicateurs ─────────────────────────────────────────────
         colors_r = ["#e05252" if r > 2 else "#C9A84C" if r > 1.5 else "#1db87a"
                     for r in ratios]
         bars2 = ax2.bar(x, ratios, 0.6, color=colors_r, alpha=0.85,
-                        edgecolor="#0d1e38", linewidth=0.8)
+                        edgecolor="#07090F", linewidth=0.8)
 
         # Labels sur les barres
         for bar, ratio in zip(bars2, ratios):
@@ -608,25 +1153,25 @@ def fig_stress_comparaison(stress_results: dict, pv: float) -> plt.Figure:
                      bar.get_height() + 0.04,
                      f"×{ratio:.2f}", ha="center", va="bottom",
                      fontsize=8, fontweight="bold",
-                     color="#e05252" if ratio > 2 else "#C9A84C" if ratio > 1.5 else "#1db87a")
+                     color="#FF4D6D" if ratio > 2 else "#C9A84C" if ratio > 1.5 else "#1db87a")
 
-        ax2.axhline(1.0, color="#1db87a", lw=1.8, ls="--",
+        ax2.axhline(1.0, color="#00C896", lw=1.8, ls="--",
                     label="VaR normale (×1)", alpha=0.8)
-        ax2.axhline(2.0, color="#e05252", lw=1.4, ls=":",
+        ax2.axhline(2.0, color="#FF4D6D", lw=1.4, ls=":",
                     label="Seuil alerte (×2)", alpha=0.8)
         # Zone d'alerte
         ax2.axhspan(2.0, max(ratios)*1.15 if max(ratios) > 2 else 2.5,
-                    alpha=0.05, color="#e05252")
+                    alpha=0.05, color="#FF4D6D")
 
         ax2.set_xticks(x)
         ax2.set_xticklabels(short_sc, rotation=30, ha="right", fontsize=8)
         ax2.set_ylabel("Ratio VaR Stressée / VaR Normale", fontsize=9, labelpad=6)
         ax2.set_title("Multiplicateurs de stress", fontsize=11,
-                      color="#C9A84C", pad=10, fontweight="bold")
-        ax2.legend(fontsize=8.5, facecolor="#111f35", edgecolor="#2a3f5f",
+                      color="#F0B429", pad=10, fontweight="bold")
+        ax2.legend(fontsize=8.5, facecolor="#111827", edgecolor="#1a2235",
                    labelcolor="#d0daea")
         ax2.grid(axis="y", alpha=0.18, linestyle="--")
-        for spine in ax2.spines.values(): spine.set_edgecolor("#2a3f5f")
+        for spine in ax2.spines.values(): spine.set_edgecolor("#1a2235")
 
         plt.tight_layout()
         return fig
@@ -852,11 +1397,11 @@ def christoffersen_test(rendements: np.ndarray, var_pct: float) -> dict:
 # ══════════════════════════════════════════════════════════════════════════════
 
 PLT_DARK = {
-    "figure.facecolor": "#0d1e38", "axes.facecolor": "#0d1e38",
-    "axes.edgecolor": "#2a3f5f", "axes.labelcolor": "#8aa0bc",
-    "xtick.color": "#8aa0bc", "ytick.color": "#8aa0bc",
-    "grid.color": "#1a2d48", "text.color": "#d0daea",
-    "legend.facecolor": "#111f35", "legend.edgecolor": "#2a3f5f",
+    "figure.facecolor": "#07090F", "axes.facecolor": "#0C0F1A",
+    "axes.edgecolor": "#1a2235",   "axes.labelcolor": "#7A8BA8",
+    "xtick.color": "#7A8BA8",      "ytick.color": "#7A8BA8",
+    "grid.color":  "#111827",      "text.color":  "#E8EDF5",
+    "legend.facecolor": "#111827", "legend.edgecolor": "#1a2235",
 }
 
 def fig_perf(rendements: pd.DataFrame, tickers: list) -> plt.Figure:
@@ -864,41 +1409,41 @@ def fig_perf(rendements: pd.DataFrame, tickers: list) -> plt.Figure:
         fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(12, 5.5),
                                         gridspec_kw={"height_ratios": [3, 1]})
         fig.patch.set_alpha(0)
-        colors = ["#2E6FD4","#C9A84C","#1db87a","#e05252",
-                  "#a855f7","#f97316","#06b6d4","#ec4899"]
+        colors = ["#00D4FF","#F0B429","#00C896","#FF4D6D",
+                  "#9D7FEA","#FF7849","#4CC9F0","#F72585"]
         port_r = rendements.mean(axis=1)
         cumul  = (1 + port_r).cumprod()
 
         ax1.fill_between(range(len(cumul)), cumul.values, 1,
                          where=(cumul.values >= 1),
-                         alpha=0.12, color="#2E6FD4", interpolate=True)
+                         alpha=0.12, color="#00D4FF", interpolate=True)
         ax1.fill_between(range(len(cumul)), cumul.values, 1,
                          where=(cumul.values < 1),
-                         alpha=0.12, color="#e05252", interpolate=True)
-        ax1.plot(cumul.values, color="#2E6FD4", lw=2, label="Portefeuille", zorder=4)
+                         alpha=0.12, color="#FF4D6D", interpolate=True)
+        ax1.plot(cumul.values, color="#00D4FF", lw=2, label="Portefeuille", zorder=4)
         for i, t in enumerate(tickers[:5]):
             if t in rendements.columns:
                 c = (1 + rendements[t]).cumprod()
                 ax1.plot(c.values, color=colors[(i+1) % len(colors)],
                          lw=0.9, alpha=0.55, label=t, zorder=3)
-        ax1.axhline(1, color="#C9A84C", lw=0.8, ls="--", alpha=0.5)
-        ax1.set_title("Performance cumulée", fontsize=11, color="#C9A84C",
+        ax1.axhline(1, color="#F0B429", lw=0.8, ls="--", alpha=0.5)
+        ax1.set_title("Performance cumulée", fontsize=11, color="#F0B429",
                       pad=8, fontweight="bold")
         ax1.legend(fontsize=7.5, loc="upper left",
-                   facecolor="#111f35", edgecolor="#2a3f5f", labelcolor="#d0daea")
+                   facecolor="#111827", edgecolor="#1a2235", labelcolor="#d0daea")
         ax1.grid(True, alpha=0.15, linestyle="--")
         ax1.tick_params(labelsize=8.5)
-        for spine in ax1.spines.values(): spine.set_edgecolor("#2a3f5f")
+        for spine in ax1.spines.values(): spine.set_edgecolor("#1a2235")
 
         col_bars = ["#1db87a" if v >= 0 else "#e05252" for v in port_r]
         ax2.bar(range(len(port_r)), port_r * 100, color=col_bars,
                 alpha=0.75, width=1, linewidth=0)
-        ax2.axhline(0, color="#C9A84C", lw=0.6)
+        ax2.axhline(0, color="#F0B429", lw=0.6)
         ax2.set_title("Rendements journaliers (%)", fontsize=9,
                       color="#8aa0bc", pad=4)
         ax2.tick_params(labelsize=7.5)
         ax2.grid(True, alpha=0.15, linestyle="--")
-        for spine in ax2.spines.values(): spine.set_edgecolor("#2a3f5f")
+        for spine in ax2.spines.values(): spine.set_edgecolor("#1a2235")
         plt.tight_layout()
         return fig
 
@@ -913,7 +1458,7 @@ def fig_correlation(rendements: pd.DataFrame) -> plt.Figure:
         fig.patch.set_alpha(0)
         from matplotlib.colors import LinearSegmentedColormap
         cmap_custom = LinearSegmentedColormap.from_list(
-            "var_corr", ["#e05252", "#1a2d48", "#1db87a"], N=256)
+            "var_corr", ["#e05252", "#111827", "#1db87a"], N=256)
         im = ax.imshow(corr.values, cmap=cmap_custom, vmin=-1, vmax=1, aspect="auto")
         cbar = plt.colorbar(im, ax=ax, shrink=0.82, pad=0.02)
         cbar.set_label("Corrélation", fontsize=9, color="#8aa0bc")
@@ -929,8 +1474,8 @@ def fig_correlation(rendements: pd.DataFrame) -> plt.Figure:
                 ax.text(j, i, f"{v:.2f}", ha="center", va="center",
                         fontsize=7.5, color=fc, fontweight="bold")
         ax.set_title("Matrice de Corrélation", fontsize=12,
-                     color="#C9A84C", pad=10, fontweight="bold")
-        for spine in ax.spines.values(): spine.set_edgecolor("#2a3f5f")
+                     color="#F0B429", pad=10, fontweight="bold")
+        for spine in ax.spines.values(): spine.set_edgecolor("#1a2235")
         plt.tight_layout()
         return fig
 
@@ -939,8 +1484,8 @@ def fig_var_comparaison(var_results: dict, conf: float, pv: float) -> plt.Figure
     methods = list(var_results.keys())
     vars_   = [var_results[m][conf]["VaR"] / 1000 for m in methods]
     ess_    = [var_results[m][conf]["ES"]  / 1000 for m in methods]
-    colors  = ["#2E6FD4","#C9A84C","#1db87a","#e05252",
-               "#a855f7","#f97316","#06b6d4"]
+    colors  = ["#00D4FF","#F0B429","#00C896","#FF4D6D",
+               "#9D7FEA","#FF7849","#4CC9F0"]
     short   = [m.replace("Variance-Covariance", "VCV")
                 .replace("Cornish-Fisher", "C-Fisher")
                 .replace("RiskMetrics", "RiskM.") for m in methods]
@@ -949,10 +1494,10 @@ def fig_var_comparaison(var_results: dict, conf: float, pv: float) -> plt.Figure
         fig.patch.set_alpha(0)
         x = np.arange(len(methods)); w = 0.38
         bars1 = ax.bar(x - w/2, vars_, w, color=colors,
-                       alpha=0.9, label="VaR", edgecolor="#0d1e38", linewidth=0.6)
+                       alpha=0.9, label="VaR", edgecolor="#07090F", linewidth=0.6)
         ax.bar(x + w/2, ess_, w, color=colors,
                alpha=0.42, label="ES (CVaR)",
-               edgecolor="#0d1e38", linewidth=0.6, hatch="//")
+               edgecolor="#07090F", linewidth=0.6, hatch="//")
         for bar, col in zip(bars1, colors):
             h = bar.get_height()
             ax.text(bar.get_x() + bar.get_width() / 2, h + max(vars_)*0.015,
@@ -965,10 +1510,10 @@ def fig_var_comparaison(var_results: dict, conf: float, pv: float) -> plt.Figure
         ax.set_title(
             f"VaR & Expected Shortfall — Niveau {conf*100:.0f}%  ·  "
             f"Portefeuille {pv/1e6:.0f} M€",
-            fontsize=11, color="#C9A84C", pad=10, fontweight="bold")
-        ax.legend(fontsize=9, facecolor="#111f35", edgecolor="#2a3f5f",
+            fontsize=11, color="#F0B429", pad=10, fontweight="bold")
+        ax.legend(fontsize=9, facecolor="#111827", edgecolor="#1a2235",
                   labelcolor="#d0daea")
-        for spine in ax.spines.values(): spine.set_edgecolor("#2a3f5f")
+        for spine in ax.spines.values(): spine.set_edgecolor("#1a2235")
         ax.tick_params(labelsize=8.5)
         plt.tight_layout()
         return fig
@@ -980,15 +1525,15 @@ def fig_distribution(rendements: np.ndarray, var_results: dict) -> plt.Figure:
         fig.patch.set_alpha(0)
         pos_mask = rendements >= 0
         ax.hist(rendements[pos_mask] * 100, bins=55, density=True,
-                color="#1db87a", alpha=0.45, edgecolor="#0d1e38",
+                color="#00C896", alpha=0.45, edgecolor="#07090F",
                 lw=0.2, label="Rdt ≥ 0")
         ax.hist(rendements[~pos_mask] * 100, bins=55, density=True,
-                color="#2E6FD4", alpha=0.55, edgecolor="#0d1e38",
+                color="#00D4FF", alpha=0.55, edgecolor="#07090F",
                 lw=0.2, label="Rdt < 0")
         mu, sig = rendements.mean(), rendements.std()
         x_range = np.linspace(rendements.min(), rendements.max(), 400)
         ax.plot(x_range * 100, stats.norm.pdf(x_range, mu, sig) / 100,
-                color="#C9A84C", lw=2.2, ls="--", label="N(μ, σ)", zorder=5)
+                color="#F0B429", lw=2.2, ls="--", label="N(μ, σ)", zorder=5)
         var_styles = {
             "Historique":  ("#e05252", "--"),
             "GARCH(1,1)": ("#a855f7", "-."),
@@ -1003,11 +1548,11 @@ def fig_distribution(rendements: np.ndarray, var_results: dict) -> plt.Figure:
         ax.set_xlabel("Rendement journalier (%)", fontsize=10, labelpad=6)
         ax.set_ylabel("Densité", fontsize=10, labelpad=6)
         ax.set_title("Distribution des rendements  ·  VaR 99% superposée",
-                     fontsize=11, color="#C9A84C", pad=10, fontweight="bold")
-        ax.legend(fontsize=8, facecolor="#111f35", edgecolor="#2a3f5f",
+                     fontsize=11, color="#F0B429", pad=10, fontweight="bold")
+        ax.legend(fontsize=8, facecolor="#111827", edgecolor="#1a2235",
                   labelcolor="#d0daea")
         ax.grid(True, alpha=0.15, linestyle="--")
-        for spine in ax.spines.values(): spine.set_edgecolor("#2a3f5f")
+        for spine in ax.spines.values(): spine.set_edgecolor("#1a2235")
         ax.tick_params(labelsize=8.5)
         plt.tight_layout()
         return fig
@@ -1030,24 +1575,24 @@ def fig_backtesting(bt_results: dict) -> plt.Figure:
             for xi, (pv_, col) in enumerate(zip(pvals,
                     ["#1db87a" if p > 0.05 else "#e05252" for p in pvals])):
                 ax.bar(xi, pv_, 0.6, color=col, alpha=0.85,
-                       edgecolor="#0d1e38", linewidth=0.7)
+                       edgecolor="#07090F", linewidth=0.7)
                 ax.text(xi, pv_ + 0.008, f"{pv_:.3f}",
                         ha="center", va="bottom", fontsize=7.5,
                         color=col, fontweight="bold")
-            ax.axhline(0.05, color="#C9A84C", lw=2, ls="--",
+            ax.axhline(0.05, color="#F0B429", lw=2, ls="--",
                        label="Seuil α = 5%", alpha=0.9)
-            ax.axhspan(0, 0.05, alpha=0.06, color="#e05252")
+            ax.axhspan(0, 0.05, alpha=0.06, color="#FF4D6D")
             ax.set_xticks(x)
             ax.set_xticklabels(short[:len(pvals)],
                                rotation=28, ha="right", fontsize=8.5)
             ax.set_ylabel("p-value", fontsize=10, labelpad=6)
             ax.set_ylim(0, max(max(pvals) * 1.2, 0.15))
-            ax.set_title(title, fontsize=11, color="#C9A84C",
+            ax.set_title(title, fontsize=11, color="#F0B429",
                          pad=8, fontweight="bold")
-            ax.legend(fontsize=9, facecolor="#111f35", edgecolor="#2a3f5f",
+            ax.legend(fontsize=9, facecolor="#111827", edgecolor="#1a2235",
                       labelcolor="#d0daea")
             ax.grid(axis="y", alpha=0.15, linestyle="--")
-            for spine in ax.spines.values(): spine.set_edgecolor("#2a3f5f")
+            for spine in ax.spines.values(): spine.set_edgecolor("#1a2235")
             ax.tick_params(labelsize=8.5)
         plt.tight_layout()
         return fig
@@ -1283,6 +1828,12 @@ for key in ["prix","rendements","var_results","bt_results","actifs_choisis","pv"
     if key not in st.session_state:
         st.session_state[key] = None
 
+# FIX 3 — Défauts stables pour le multiselect actifs (évite le bug "0 actif" au 1er rendu)
+_ACTIFS_DEFAULT = ["Apple (AAPL)", "Microsoft (MSFT)", "LVMH (MC.PA)",
+                   "TotalEnergies (TTE)", "BNP Paribas (BNP)"]
+if "actifs_selection" not in st.session_state:
+    st.session_state["actifs_selection"] = _ACTIFS_DEFAULT
+
 
 # ══════════════════════════════════════════════════════════════════════════════
 # SIDEBAR
@@ -1290,7 +1841,7 @@ for key in ["prix","rendements","var_results","bt_results","actifs_choisis","pv"
 
 with st.sidebar:
     st.markdown("### 📉 VaR Analytics Suite")
-    st.markdown("<div style='font-size:10px;color:#8aa0bc;font-family:JetBrains Mono,monospace;margin-bottom:16px'>v4.0 · Département Risque</div>", unsafe_allow_html=True)
+    st.markdown("<div style='font-size:10px;color:var(--txt-secondary,#7A8BA8);font-family:DM Mono,monospace;margin-bottom:16px'>v4.0 · Département Risque</div>", unsafe_allow_html=True)
     st.divider()
 
     menu = st.selectbox(
@@ -1308,20 +1859,20 @@ with st.sidebar:
         sharpe = (r.mean() - 0.03/252) / r.std() * np.sqrt(252)
         st.markdown("**Portefeuille chargé**")
         st.markdown(f"""
-        <div style='font-size:11px;font-family:JetBrains Mono,monospace;line-height:1.9'>
-        <span style='color:#8aa0bc'>Rdt ann. :</span> <span style='color:#1db87a'>+{ann_r*100:.2f}%</span><br>
-        <span style='color:#8aa0bc'>Vol. ann. :</span> <span style='color:#d0daea'>{ann_v*100:.2f}%</span><br>
-        <span style='color:#8aa0bc'>Sharpe   :</span> <span style='color:#C9A84C'>{sharpe:.3f}</span>
+        <div style='font-size:11px;font-family:DM Mono,monospace;line-height:1.9'>
+        <span style='color:var(--txt-secondary,#7A8BA8)'>Rdt ann. :</span> <span style='color:var(--signal-green,#00C896)'>+{ann_r*100:.2f}%</span><br>
+        <span style='color:var(--txt-secondary,#7A8BA8)'>Vol. ann. :</span> <span style='color:var(--txt-primary,#E8EDF5)'>{ann_v*100:.2f}%</span><br>
+        <span style='color:var(--txt-secondary,#7A8BA8)'>Sharpe   :</span> <span style='color:var(--amber,#F0B429)'>{sharpe:.3f}</span>
         </div>""", unsafe_allow_html=True)
         st.divider()
 
     st.markdown("""
-    <div style='font-size:10px;color:#8aa0bc;line-height:1.8'>
-    <b style='color:#C9A84C'>7 méthodes VaR</b><br>
+    <div style='font-size:10px;color:var(--txt-secondary,#7A8BA8);line-height:1.8'>
+    <b style='color:var(--amber,#F0B429)'>7 méthodes VaR</b><br>
     · Historique · VCV · RiskMetrics<br>
     · Cornish-Fisher · GARCH(1,1)<br>
     · TVE (POT) · TVE-GARCH<br><br>
-    <b style='color:#C9A84C'>Nouveautés v4.0</b><br>
+    <b style='color:var(--amber,#F0B429)'>Nouveautés v4.0</b><br>
     · Optimisation Markowitz<br>
     · Stress-Testing (6 scénarios)<br>
     · ES analytique TVE-GARCH<br>
@@ -1383,11 +1934,11 @@ if menu == "🏠 Accueil":
             st.markdown(f"""
             <div class='var-card' style='text-align:center;padding:14px'>
             <div style='font-size:22px;margin-bottom:6px'>👤</div>
-            <div style='font-size:11px;font-weight:600;color:#d0daea'>{m}</div>
+            <div style='font-size:11px;font-weight:600;color:var(--txt-primary,#E8EDF5)'>{m}</div>
             </div>""", unsafe_allow_html=True)
 
     st.markdown("""
-    <div style='text-align:center;margin-top:16px;font-size:11px;color:#8aa0bc'>
+    <div style='text-align:center;margin-top:16px;font-size:11px;color:var(--txt-secondary,#7A8BA8)'>
     Double diplôme M2 IFIM · Ing 3 MACS — Mathématiques Appliquées au Calcul Scientifique
     </div>""", unsafe_allow_html=True)
 
@@ -1405,8 +1956,8 @@ elif menu == "🏦 Portefeuille":
         actifs_choisis = st.multiselect(
             "Actifs financiers",
             list(ACTIFS_DISPONIBLES.keys()),
-            default=["Apple (AAPL)", "Microsoft (MSFT)", "LVMH (MC.PA)",
-                     "TotalEnergies (TTE)", "BNP Paribas (BNP)"],
+            default=st.session_state["actifs_selection"],
+            key="actifs_selection",
         )
     with col2:
         pv_millions = st.number_input("Valeur du portefeuille (M€)", min_value=0.1, max_value=1000.0, value=10.0, step=0.5)
@@ -1508,7 +2059,7 @@ elif menu == "📐 Optimisation":
 
     st.markdown("""
     <div class='info-box'>
-    <b style='color:#C9A84C'>Théorie Moderne du Portefeuille (Markowitz, 1952)</b> — La frontière
+    <b style='color:var(--amber,#F0B429)'>Théorie Moderne du Portefeuille (Markowitz, 1952)</b> — La frontière
     efficiente représente l'ensemble des portefeuilles offrant le <b>meilleur rendement pour
     un niveau de risque donné</b>. Trois allocations optimales sont proposées : maximisation
     du ratio de Sharpe, minimisation de la variance, et équipondération.
@@ -1544,11 +2095,11 @@ elif menu == "📐 Optimisation":
             with col:
                 st.markdown(f"""
                 <div class='markowitz-card'>
-                  <div style='font-size:11px;color:{color};font-family:JetBrains Mono,monospace;
+                  <div style='font-size:11px;color:{color};font-family:DM Mono,monospace;
                        text-transform:uppercase;letter-spacing:1px;margin-bottom:8px'>{p['label']}</div>
-                  <div style='font-size:13px;color:#d0daea;line-height:2;font-family:JetBrains Mono,monospace'>
+                  <div style='font-size:13px;color:var(--txt-primary,#E8EDF5);line-height:2;font-family:DM Mono,monospace'>
                   📈 Rdt ann. : <b style='color:{color}'>{r*100:.2f}%</b><br>
-                  📊 Vol. ann. : <b style='color:#d0daea'>{v*100:.2f}%</b><br>
+                  📊 Vol. ann. : <b style='color:var(--txt-primary,#E8EDF5)'>{v*100:.2f}%</b><br>
                   ⭐ Sharpe   : <b style='color:{color}'>{s:.3f}</b>
                   </div>
                 </div>""", unsafe_allow_html=True)
@@ -1689,12 +2240,12 @@ elif menu == "🧪 Backtesting":
 
     st.markdown("""
     <div class='info-box'>
-    <b style='color:#C9A84C'>Test de Kupiec (POF)</b> — Vérifie si la fréquence d'exceptions
+    <b style='color:var(--amber,#F0B429)'>Test de Kupiec (POF)</b> — Vérifie si la fréquence d'exceptions
     est statistiquement conforme au niveau de confiance déclaré. <b>LR ~ χ²(1).</b><br><br>
-    <b style='color:#C9A84C'>Test de Christoffersen (CC)</b> — Teste l'indépendance temporelle
+    <b style='color:var(--amber,#F0B429)'>Test de Christoffersen (CC)</b> — Teste l'indépendance temporelle
     des exceptions. Un clustering signale un modèle insensible aux chocs.<br><br>
-    <span style='color:#1db87a'>✅ p-value &gt; 5%</span> → modèle validé &nbsp;
-    <span style='color:#e05252'>❌ p-value ≤ 5%</span> → modèle rejeté
+    <span style='color:var(--signal-green,#00C896)'>✅ p-value &gt; 5%</span> → modèle validé &nbsp;
+    <span style='color:var(--risk-red,#FF4D6D)'>❌ p-value ≤ 5%</span> → modèle rejeté
     </div>""", unsafe_allow_html=True)
 
     btn3, _ = st.columns([1,3])
@@ -1753,7 +2304,7 @@ elif menu == "🧪 Backtesting":
                 <div class='var-card' style='text-align:center'>
                   <div class='var-card-title'>{m}</div>
                   <div style='font-size:15px;font-weight:700;color:{color};margin:6px 0'>{score}</div>
-                  <div style='font-size:10px;color:#8aa0bc;font-family:JetBrains Mono,monospace'>
+                  <div style='font-size:10px;color:var(--txt-secondary,#7A8BA8);font-family:DM Mono,monospace'>
                   Kupiec p={k.get('p_value',0):.4f}<br>CC p={cc.get('p_value_ind',0):.4f}
                   </div>
                 </div>""", unsafe_allow_html=True)
@@ -1829,13 +2380,13 @@ elif menu == "🔥 Stress-Testing":
                     st.markdown(f"""
                     <div class='stress-card'>
                       <div class='stress-title'>{alert} {sc_name.split("(")[0].strip()}</div>
-                      <div style='font-size:10px;color:#8aa0bc;margin-bottom:8px'>{sc_info.get('date','')}</div>
+                      <div style='font-size:10px;color:var(--txt-secondary,#7A8BA8);margin-bottom:8px'>{sc_info.get('date','')}</div>
                       <div class='stress-val'>{sr['pnl_stress']/1000:+.0f} k€</div>
-                      <div style='font-size:11px;color:#8aa0bc;margin-top:4px;font-family:JetBrains Mono,monospace'>
+                      <div style='font-size:11px;color:var(--txt-secondary,#7A8BA8);margin-top:4px;font-family:DM Mono,monospace'>
                         P&L stressé<br>
                         VaR stressée : <b style='color:#e87373'>{sr['var_stress']/1000:.0f} k€</b><br>
-                        Ratio : <b style='color:#C9A84C'>{ratio_txt}</b> vs VaR normale<br>
-                        Choc marché : <b style='color:#e05252'>{sr['choc']*100:.2f}%</b>
+                        Ratio : <b style='color:var(--amber,#F0B429)'>{ratio_txt}</b> vs VaR normale<br>
+                        Choc marché : <b style='color:var(--risk-red,#FF4D6D)'>{sr['choc']*100:.2f}%</b>
                       </div>
                     </div>""", unsafe_allow_html=True)
 
@@ -1931,7 +2482,7 @@ elif menu == "📊 Reporting":
         st.markdown("""
         <div class='var-card'>
           <div class='var-card-title'>📊 Rapport Excel</div>
-          <div style='font-size:12px;color:#d0daea;margin:8px 0;line-height:1.6'>
+          <div style='font-size:12px;color:var(--txt-primary,#E8EDF5);margin:8px 0;line-height:1.6'>
           4 feuilles : Résumé VaR · Backtesting · Markowitz · Données<br>
           Formatage professionnel, tableaux structurés, prêt pour la Direction.
           </div>
@@ -1951,7 +2502,7 @@ elif menu == "📊 Reporting":
         st.markdown("""
         <div class='var-card'>
           <div class='var-card-title'>📄 Rapport PDF</div>
-          <div style='font-size:12px;color:#d0daea;margin:8px 0;line-height:1.6'>
+          <div style='font-size:12px;color:var(--txt-primary,#E8EDF5);margin:8px 0;line-height:1.6'>
           Couverture · VaR · Backtesting · Graphiques intégrés<br>
           Mise en page exécutive, prêt à imprimer / envoyer.
           </div>
