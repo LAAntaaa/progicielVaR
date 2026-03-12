@@ -388,90 +388,140 @@ def optimiser_portefeuille(rendements: pd.DataFrame, rf: float = 0.03) -> dict:
 
 
 def fig_frontiere_efficiente(opt_results: dict) -> plt.Figure:
-    PLT_DARK = {
-        "figure.facecolor": "#0d1e38", "axes.facecolor": "#0d1e38",
-        "axes.edgecolor": "#2a3f5f", "axes.labelcolor": "#8aa0bc",
-        "xtick.color": "#8aa0bc", "ytick.color": "#8aa0bc",
-        "grid.color": "#1a2d48", "text.color": "#d0daea",
-        "legend.facecolor": "#111f35", "legend.edgecolor": "#2a3f5f",
-    }
     with plt.rc_context(PLT_DARK):
-        fig, ax = plt.subplots(figsize=(10, 5))
+        fig, ax = plt.subplots(figsize=(11, 5.5))
+        fig.patch.set_alpha(0)
+
         fv, fr = opt_results["frontier"]
         if fv:
-            ax.plot([v*100 for v in fv], [r*100 for r in fr],
-                    color="#2E6FD4", lw=2.5, label="Frontière efficiente")
-            ax.fill_betweenx([r*100 for r in fr], [v*100 for v in fv],
-                             alpha=0.08, color="#2E6FD4")
+            vols_f = [v*100 for v in fv]
+            rets_f = [r*100 for r in fr]
+            # Dégradé de couleur sur la frontière
+            from matplotlib.collections import LineCollection
+            points = np.array([vols_f, rets_f]).T.reshape(-1, 1, 2)
+            segs   = np.concatenate([points[:-1], points[1:]], axis=1)
+            lc = LineCollection(segs, cmap="cool", linewidth=2.8, zorder=3)
+            lc.set_array(np.linspace(0, 1, len(segs)))
+            ax.add_collection(lc)
+            # Zone ombragée sous la frontière
+            ax.fill_between(vols_f, rets_f, min(rets_f),
+                            alpha=0.07, color="#2E6FD4", zorder=1)
 
         # Actifs individuels
-        mu = opt_results["mu"]
-        cov = opt_results["cov"]
+        mu      = opt_results["mu"]
+        cov     = opt_results["cov"]
         tickers = opt_results["tickers"]
+        asset_colors = ["#2E6FD4","#06b6d4","#8b5cf6","#f97316",
+                        "#ec4899","#10b981","#f59e0b","#ef4444",
+                        "#3b82f6","#84cc16","#e879f9","#14b8a6",
+                        "#fb923c","#a78bfa","#34d399"]
         for i, t in enumerate(tickers):
             vol_i = np.sqrt(cov[i, i]) * 100
             mu_i  = mu[i] * 100
-            ax.scatter(vol_i, mu_i, s=60, color="#8aa0bc", zorder=5, alpha=0.7)
-            ax.annotate(t, (vol_i, mu_i), fontsize=7, color="#8aa0bc",
-                        xytext=(4, 2), textcoords="offset points")
+            col_i = asset_colors[i % len(asset_colors)]
+            ax.scatter(vol_i, mu_i, s=55, color=col_i, zorder=6,
+                       alpha=0.85, edgecolors="#0d1e38", linewidths=0.8, marker="o")
+            ax.annotate(t, (vol_i, mu_i), fontsize=7.5, color=col_i,
+                        fontweight="bold",
+                        xytext=(5, 4), textcoords="offset points")
 
-        # 3 portefeuilles
+        # 3 portefeuilles optimaux — marqueurs matplotlib standards uniquement
         styles = [
-            ("sharpe", "#C9A84C", "★", 180),
-            ("minvar", "#1db87a", "▼", 140),
-            ("equi",   "#a855f7", "●", 100),
+            ("sharpe", "#C9A84C", "*",  320, "Sharpe Max."),
+            ("minvar", "#1db87a", "v",  160, "Variance Min."),
+            ("equi",   "#a855f7", "D",  130, "Équipondéré"),
         ]
-        for key, col, marker, size in styles:
-            p = opt_results[key]
+        for key, col, marker, size, lbl in styles:
+            p    = opt_results[key]
             r, v, s = p["stats"]
-            ax.scatter(v*100, r*100, s=size, color=col, zorder=10,
-                       marker=marker if marker != "★" else "*",
-                       label=f"{p['label']} (Sharpe={s:.2f})")
-            ax.annotate(p["label"], (v*100, r*100), fontsize=8, color=col,
-                        fontweight="bold", xytext=(6, 4), textcoords="offset points")
+            # Halo lumineux derrière le marqueur
+            ax.scatter(v*100, r*100, s=size*2.5, color=col,
+                       alpha=0.18, zorder=7, marker=marker)
+            ax.scatter(v*100, r*100, s=size, color=col, zorder=8,
+                       marker=marker, edgecolors="white", linewidths=0.9,
+                       label=f"{lbl}  (Sharpe {s:.2f})")
+            ax.annotate(lbl, (v*100, r*100), fontsize=8.5, color=col,
+                        fontweight="bold",
+                        xytext=(9, 5), textcoords="offset points",
+                        bbox=dict(boxstyle="round,pad=0.25", fc="#0d1e38",
+                                  ec=col, alpha=0.75, lw=0.8))
 
-        ax.set_xlabel("Volatilité annualisée (%)", fontsize=9)
-        ax.set_ylabel("Rendement annualisé (%)", fontsize=9)
-        ax.set_title("Frontière Efficiente de Markowitz", fontsize=11,
-                     color="#C9A84C", pad=10)
-        ax.legend(fontsize=8, loc="lower right")
-        ax.grid(True, alpha=0.2)
+        ax.set_xlabel("Volatilité annualisée (%)", fontsize=10, labelpad=8)
+        ax.set_ylabel("Rendement annualisé (%)", fontsize=10, labelpad=8)
+        ax.set_title("Frontière Efficiente de Markowitz",
+                     fontsize=13, color="#C9A84C", pad=12, fontweight="bold")
+        legend = ax.legend(fontsize=8.5, loc="lower right",
+                           framealpha=0.85, edgecolor="#2a3f5f",
+                           facecolor="#111f35", labelcolor="#d0daea")
+        ax.tick_params(labelsize=8.5)
+        ax.grid(True, alpha=0.18, linestyle="--")
+        # Cadre sobre
+        for spine in ax.spines.values():
+            spine.set_edgecolor("#2a3f5f")
         plt.tight_layout()
         return fig
 
 
 def fig_poids_portefeuilles(opt_results: dict) -> plt.Figure:
-    PLT_DARK = {
-        "figure.facecolor": "#0d1e38", "axes.facecolor": "#0d1e38",
-        "axes.edgecolor": "#2a3f5f", "axes.labelcolor": "#8aa0bc",
-        "xtick.color": "#8aa0bc", "ytick.color": "#8aa0bc",
-        "grid.color": "#1a2d48", "text.color": "#d0daea",
-        "legend.facecolor": "#111f35", "legend.edgecolor": "#2a3f5f",
-    }
     tickers = opt_results["tickers"]
-    keys = ["sharpe", "minvar", "equi"]
-    labels = ["Sharpe Max.", "Variance Min.", "Équipondéré"]
-    colors_ = ["#C9A84C", "#1db87a", "#a855f7"]
+    keys    = ["sharpe", "minvar", "equi"]
+    labels_ = ["Sharpe Max.", "Variance Min.", "Équipondéré"]
+    accent  = ["#C9A84C", "#1db87a", "#a855f7"]
+
+    # Palette étendue cohérente avec la frontière
+    PALETTE = ["#2E6FD4","#C9A84C","#1db87a","#e05252","#a855f7",
+               "#f97316","#06b6d4","#ec4899","#10b981","#f59e0b",
+               "#3b82f6","#84cc16","#14b8a6","#fb923c","#a78bfa"]
 
     with plt.rc_context(PLT_DARK):
-        fig, axes = plt.subplots(1, 3, figsize=(12, 4))
-        for ax, key, label, col in zip(axes, keys, labels, colors_):
-            w = opt_results[key]["weights"]
+        fig, axes = plt.subplots(1, 3, figsize=(13, 4.5))
+        fig.patch.set_alpha(0)
+
+        for ax, key, label, col in zip(axes, keys, labels_, accent):
+            w    = opt_results[key]["weights"]
             mask = w > 0.005
-            w_f = w[mask]
-            t_f = [tickers[i] for i, m in enumerate(mask) if m]
+            w_f  = w[mask]
+            t_f  = [tickers[i] for i, m in enumerate(mask) if m]
+            idx  = [i for i, m in enumerate(mask) if m]
+
+            pie_colors = [PALETTE[i % len(PALETTE)] for i in idx]
+
             wedges, texts, autotexts = ax.pie(
-                w_f, labels=t_f, autopct='%1.1f%%',
-                colors=[col] + [f"{col}99", f"{col}77", f"{col}55",
-                                "#2E6FD4", "#2E6FD499", "#2E6FD477"][:len(w_f)-1],
-                startangle=90, pctdistance=0.75,
-                wedgeprops={"edgecolor": "#0d1e38", "linewidth": 1.5}
+                w_f,
+                labels=t_f,
+                autopct=lambda p: f"{p:.1f}%" if p > 3 else "",
+                colors=pie_colors,
+                startangle=90,
+                pctdistance=0.72,
+                wedgeprops={"edgecolor": "#0d1e38", "linewidth": 1.8},
+                textprops={"fontsize": 7.5},
             )
-            for text in texts: text.set_fontsize(7); text.set_color("#d0daea")
-            for at in autotexts: at.set_fontsize(6.5); at.set_color("#0d1e38"); at.set_fontweight("bold")
+            for text in texts:
+                text.set_color("#d0daea")
+                text.set_fontsize(7.5)
+            for at in autotexts:
+                at.set_fontsize(7)
+                at.set_color("#0d1e38")
+                at.set_fontweight("bold")
+
             r, v, s = opt_results[key]["stats"]
-            ax.set_title(f"{label}\nRdt: {r*100:.1f}% · Vol: {v*100:.1f}% · Sharpe: {s:.2f}",
-                         fontsize=8.5, color=col, pad=6)
+            # Cercle central (donut effect)
+            centre = plt.Circle((0, 0), 0.42, color="#0d1e38", zorder=10)
+            ax.add_patch(centre)
+            ax.text(0, 0.08, f"{s:.2f}", ha="center", va="center",
+                    fontsize=14, fontweight="bold", color=col, zorder=11)
+            ax.text(0, -0.14, "Sharpe", ha="center", va="center",
+                    fontsize=7, color="#8aa0bc", zorder=11)
+
+            # Halo coloré autour du cercle
+            ring = plt.Circle((0, 0), 0.44, color=col, alpha=0.18, zorder=9)
+            ax.add_patch(ring)
+
+            ax.set_title(
+                f"{label}\n"
+                f"Rdt {r*100:.1f}%  ·  Vol {v*100:.1f}%",
+                fontsize=9, color=col, pad=8, fontweight="bold"
+            )
         plt.tight_layout()
         return fig
 
@@ -512,41 +562,71 @@ def appliquer_stress(rendements_port: np.ndarray, pv: float,
 
 
 def fig_stress_comparaison(stress_results: dict, pv: float) -> plt.Figure:
-    PLT_DARK = {
-        "figure.facecolor": "#0d1e38", "axes.facecolor": "#0d1e38",
-        "axes.edgecolor": "#2a3f5f", "axes.labelcolor": "#8aa0bc",
-        "xtick.color": "#8aa0bc", "ytick.color": "#8aa0bc",
-        "grid.color": "#1a2d48", "text.color": "#d0daea",
-        "legend.facecolor": "#111f35", "legend.edgecolor": "#2a3f5f",
-    }
     with plt.rc_context(PLT_DARK):
-        fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12, 4))
+        fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(13, 4.5))
+        fig.patch.set_alpha(0)
 
         scenarios = list(stress_results.keys())
         pnls    = [stress_results[s]["pnl_stress"]/1000 for s in scenarios]
-        vars_st = [stress_results[s]["var_stress"]/1000  for s in scenarios]
         vars_nm = [stress_results[s]["var_normal"]/1000  for s in scenarios]
-
-        short_sc = [s.split("(")[0].strip()[:22] for s in scenarios]
+        ratios  = [stress_results[s]["ratio"] for s in scenarios]
+        short_sc = [s.split("(")[0].strip()[:20] for s in scenarios]
         x = np.arange(len(scenarios))
 
-        ax1.barh(x, [abs(p) for p in pnls], color="#e05252", alpha=0.8, label="P&L stressé")
-        ax1.barh(x, vars_nm, color="#2E6FD4", alpha=0.5, label="VaR normale 99%")
-        ax1.set_yticks(x); ax1.set_yticklabels(short_sc, fontsize=8)
-        ax1.set_xlabel("k€", fontsize=9)
-        ax1.set_title("Impact P&L vs VaR normale", fontsize=10, color="#C9A84C", pad=6)
-        ax1.legend(fontsize=8); ax1.grid(axis="x", alpha=0.2)
+        # ── Ax1 : barres horizontales ─────────────────────────────────────────
+        bar_h1 = ax1.barh(x - 0.2, [abs(p) for p in pnls], 0.38,
+                          color="#e05252", alpha=0.85, label="P&L stressé")
+        bar_h2 = ax1.barh(x + 0.2, vars_nm, 0.38,
+                          color="#2E6FD4", alpha=0.65, label="VaR normale 99%")
 
-        ratios = [stress_results[s]["ratio"] for s in scenarios]
-        colors_r = ["#e05252" if r > 2 else "#C9A84C" if r > 1.5 else "#1db87a" for r in ratios]
-        ax2.bar(short_sc, ratios, color=colors_r, alpha=0.85)
-        ax2.axhline(1.0, color="#1db87a", lw=1.5, ls="--", label="VaR normale (ratio=1)")
-        ax2.axhline(2.0, color="#e05252", lw=1.2, ls=":", label="Seuil d'alerte (×2)")
-        ax2.set_xticks(range(len(short_sc)))
-        ax2.set_xticklabels(short_sc, rotation=30, ha="right", fontsize=7.5)
-        ax2.set_ylabel("Ratio VaR Stressée / VaR Normale", fontsize=9)
-        ax2.set_title("Multiplicateurs de stress", fontsize=10, color="#C9A84C", pad=6)
-        ax2.legend(fontsize=8); ax2.grid(axis="y", alpha=0.2)
+        # Labels valeurs
+        for bar in bar_h1:
+            w = bar.get_width()
+            ax1.text(w + max(vars_nm)*0.02, bar.get_y() + bar.get_height()/2,
+                     f"{w:.0f}k", va="center", fontsize=7.5,
+                     color="#e05252", fontweight="bold")
+
+        ax1.set_yticks(x)
+        ax1.set_yticklabels(short_sc, fontsize=8.5)
+        ax1.set_xlabel("k€", fontsize=9, labelpad=6)
+        ax1.set_title("Impact P&L vs VaR normale", fontsize=11,
+                      color="#C9A84C", pad=10, fontweight="bold")
+        ax1.legend(fontsize=8.5, facecolor="#111f35", edgecolor="#2a3f5f",
+                   labelcolor="#d0daea")
+        ax1.grid(axis="x", alpha=0.18, linestyle="--")
+        for spine in ax1.spines.values(): spine.set_edgecolor("#2a3f5f")
+
+        # ── Ax2 : multiplicateurs ─────────────────────────────────────────────
+        colors_r = ["#e05252" if r > 2 else "#C9A84C" if r > 1.5 else "#1db87a"
+                    for r in ratios]
+        bars2 = ax2.bar(x, ratios, 0.6, color=colors_r, alpha=0.85,
+                        edgecolor="#0d1e38", linewidth=0.8)
+
+        # Labels sur les barres
+        for bar, ratio in zip(bars2, ratios):
+            ax2.text(bar.get_x() + bar.get_width()/2,
+                     bar.get_height() + 0.04,
+                     f"×{ratio:.2f}", ha="center", va="bottom",
+                     fontsize=8, fontweight="bold",
+                     color="#e05252" if ratio > 2 else "#C9A84C" if ratio > 1.5 else "#1db87a")
+
+        ax2.axhline(1.0, color="#1db87a", lw=1.8, ls="--",
+                    label="VaR normale (×1)", alpha=0.8)
+        ax2.axhline(2.0, color="#e05252", lw=1.4, ls=":",
+                    label="Seuil alerte (×2)", alpha=0.8)
+        # Zone d'alerte
+        ax2.axhspan(2.0, max(ratios)*1.15 if max(ratios) > 2 else 2.5,
+                    alpha=0.05, color="#e05252")
+
+        ax2.set_xticks(x)
+        ax2.set_xticklabels(short_sc, rotation=30, ha="right", fontsize=8)
+        ax2.set_ylabel("Ratio VaR Stressée / VaR Normale", fontsize=9, labelpad=6)
+        ax2.set_title("Multiplicateurs de stress", fontsize=11,
+                      color="#C9A84C", pad=10, fontweight="bold")
+        ax2.legend(fontsize=8.5, facecolor="#111f35", edgecolor="#2a3f5f",
+                   labelcolor="#d0daea")
+        ax2.grid(axis="y", alpha=0.18, linestyle="--")
+        for spine in ax2.spines.values(): spine.set_edgecolor("#2a3f5f")
 
         plt.tight_layout()
         return fig
@@ -781,115 +861,196 @@ PLT_DARK = {
 
 def fig_perf(rendements: pd.DataFrame, tickers: list) -> plt.Figure:
     with plt.rc_context(PLT_DARK):
-        fig, (ax1, ax2) = plt.subplots(2,1, figsize=(11,5),
-                                        gridspec_kw={"height_ratios":[3,1]})
-        colors = ["#2E6FD4","#C9A84C","#1db87a","#e05252","#a855f7","#f97316","#06b6d4","#ec4899"]
+        fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(12, 5.5),
+                                        gridspec_kw={"height_ratios": [3, 1]})
+        fig.patch.set_alpha(0)
+        colors = ["#2E6FD4","#C9A84C","#1db87a","#e05252",
+                  "#a855f7","#f97316","#06b6d4","#ec4899"]
         port_r = rendements.mean(axis=1)
-        cumul  = (1+port_r).cumprod()
-        ax1.fill_between(range(len(cumul)), cumul, 1, alpha=0.1, color="#2E6FD4")
-        ax1.plot(cumul.values, color="#2E6FD4", lw=1.8, label="Portefeuille")
-        for i,t in enumerate(tickers[:4]):
+        cumul  = (1 + port_r).cumprod()
+
+        ax1.fill_between(range(len(cumul)), cumul.values, 1,
+                         where=(cumul.values >= 1),
+                         alpha=0.12, color="#2E6FD4", interpolate=True)
+        ax1.fill_between(range(len(cumul)), cumul.values, 1,
+                         where=(cumul.values < 1),
+                         alpha=0.12, color="#e05252", interpolate=True)
+        ax1.plot(cumul.values, color="#2E6FD4", lw=2, label="Portefeuille", zorder=4)
+        for i, t in enumerate(tickers[:5]):
             if t in rendements.columns:
-                c = (1+rendements[t]).cumprod()
-                ax1.plot(c.values, color=colors[(i+1)%len(colors)], lw=0.8, alpha=0.5, label=t)
-        ax1.axhline(1, color="#C9A84C", lw=0.7, ls="--", alpha=0.6)
-        ax1.set_title("Performance cumulée", fontsize=10, color="#C9A84C", pad=6)
-        ax1.legend(fontsize=7, loc="upper left"); ax1.grid(True, alpha=0.3)
-        ax1.tick_params(labelsize=8)
-        col_bars = ["#1db87a" if v>=0 else "#e05252" for v in port_r]
-        ax2.bar(range(len(port_r)), port_r*100, color=col_bars, alpha=0.7, width=1)
-        ax2.axhline(0, color="#C9A84C", lw=0.5)
-        ax2.set_title("Rendements journaliers (%)", fontsize=9, color="#8aa0bc", pad=4)
-        ax2.tick_params(labelsize=7); ax2.grid(True, alpha=0.2)
-        plt.tight_layout(); return fig
+                c = (1 + rendements[t]).cumprod()
+                ax1.plot(c.values, color=colors[(i+1) % len(colors)],
+                         lw=0.9, alpha=0.55, label=t, zorder=3)
+        ax1.axhline(1, color="#C9A84C", lw=0.8, ls="--", alpha=0.5)
+        ax1.set_title("Performance cumulée", fontsize=11, color="#C9A84C",
+                      pad=8, fontweight="bold")
+        ax1.legend(fontsize=7.5, loc="upper left",
+                   facecolor="#111f35", edgecolor="#2a3f5f", labelcolor="#d0daea")
+        ax1.grid(True, alpha=0.15, linestyle="--")
+        ax1.tick_params(labelsize=8.5)
+        for spine in ax1.spines.values(): spine.set_edgecolor("#2a3f5f")
+
+        col_bars = ["#1db87a" if v >= 0 else "#e05252" for v in port_r]
+        ax2.bar(range(len(port_r)), port_r * 100, color=col_bars,
+                alpha=0.75, width=1, linewidth=0)
+        ax2.axhline(0, color="#C9A84C", lw=0.6)
+        ax2.set_title("Rendements journaliers (%)", fontsize=9,
+                      color="#8aa0bc", pad=4)
+        ax2.tick_params(labelsize=7.5)
+        ax2.grid(True, alpha=0.15, linestyle="--")
+        for spine in ax2.spines.values(): spine.set_edgecolor("#2a3f5f")
+        plt.tight_layout()
+        return fig
 
 
 def fig_correlation(rendements: pd.DataFrame) -> plt.Figure:
     corr = rendements.corr()
     tickers = list(corr.columns)
+    n = len(tickers)
+    sz = max(6, n * 1.05 + 1.5)
     with plt.rc_context(PLT_DARK):
-        fig, ax = plt.subplots(figsize=(min(10, len(tickers)*1.2+2),
-                                        min(8, len(tickers)*1.0+2)))
-        cmap = plt.cm.RdYlGn
-        im = ax.imshow(corr.values, cmap=cmap, vmin=-1, vmax=1, aspect="auto")
-        plt.colorbar(im, ax=ax, shrink=0.8, label="Corrélation")
-        ax.set_xticks(range(len(tickers))); ax.set_yticks(range(len(tickers)))
-        ax.set_xticklabels(tickers, rotation=45, ha="right", fontsize=8)
-        ax.set_yticklabels(tickers, fontsize=8)
-        for i in range(len(tickers)):
-            for j in range(len(tickers)):
+        fig, ax = plt.subplots(figsize=(sz, sz * 0.82))
+        fig.patch.set_alpha(0)
+        from matplotlib.colors import LinearSegmentedColormap
+        cmap_custom = LinearSegmentedColormap.from_list(
+            "var_corr", ["#e05252", "#1a2d48", "#1db87a"], N=256)
+        im = ax.imshow(corr.values, cmap=cmap_custom, vmin=-1, vmax=1, aspect="auto")
+        cbar = plt.colorbar(im, ax=ax, shrink=0.82, pad=0.02)
+        cbar.set_label("Corrélation", fontsize=9, color="#8aa0bc")
+        cbar.ax.yaxis.set_tick_params(color="#8aa0bc", labelsize=8)
+        plt.setp(cbar.ax.yaxis.get_ticklabels(), color="#8aa0bc")
+        ax.set_xticks(range(n)); ax.set_yticks(range(n))
+        ax.set_xticklabels(tickers, rotation=40, ha="right", fontsize=8.5)
+        ax.set_yticklabels(tickers, fontsize=8.5)
+        for i in range(n):
+            for j in range(n):
                 v = corr.values[i, j]
+                fc = "white" if abs(v) > 0.45 else "#d0daea"
                 ax.text(j, i, f"{v:.2f}", ha="center", va="center",
-                        fontsize=7, color="black" if abs(v) < 0.5 else "white",
-                        fontweight="bold")
-        ax.set_title("Matrice de Corrélation", fontsize=11, color="#C9A84C", pad=8)
-        plt.tight_layout(); return fig
+                        fontsize=7.5, color=fc, fontweight="bold")
+        ax.set_title("Matrice de Corrélation", fontsize=12,
+                     color="#C9A84C", pad=10, fontweight="bold")
+        for spine in ax.spines.values(): spine.set_edgecolor("#2a3f5f")
+        plt.tight_layout()
+        return fig
 
 
 def fig_var_comparaison(var_results: dict, conf: float, pv: float) -> plt.Figure:
     methods = list(var_results.keys())
-    vars_   = [var_results[m][conf]["VaR"]/1000 for m in methods]
-    ess_    = [var_results[m][conf]["ES"]/1000  for m in methods]
-    colors  = ["#2E6FD4","#C9A84C","#1db87a","#e05252","#a855f7","#f97316","#06b6d4"]
-    short   = [m.replace("Variance-Covariance","VCV").replace("Cornish-Fisher","C-Fisher")
-               .replace("RiskMetrics","RiskM.") for m in methods]
+    vars_   = [var_results[m][conf]["VaR"] / 1000 for m in methods]
+    ess_    = [var_results[m][conf]["ES"]  / 1000 for m in methods]
+    colors  = ["#2E6FD4","#C9A84C","#1db87a","#e05252",
+               "#a855f7","#f97316","#06b6d4"]
+    short   = [m.replace("Variance-Covariance", "VCV")
+                .replace("Cornish-Fisher", "C-Fisher")
+                .replace("RiskMetrics", "RiskM.") for m in methods]
     with plt.rc_context(PLT_DARK):
-        fig, ax = plt.subplots(figsize=(11,4))
+        fig, ax = plt.subplots(figsize=(12, 4.5))
+        fig.patch.set_alpha(0)
         x = np.arange(len(methods)); w = 0.38
-        b1 = ax.bar(x-w/2, vars_, w, color=colors, alpha=0.85, label="VaR")
-        b2 = ax.bar(x+w/2, ess_,  w, color=colors, alpha=0.45, label="ES")
-        for b in b1:
-            ax.text(b.get_x()+b.get_width()/2, b.get_height()+0.5,
-                    f"{b.get_height():.0f}k", ha="center", va="bottom",
-                    fontsize=7, color="#e05252", fontweight="bold")
-        ax.set_xticks(x); ax.set_xticklabels(short, rotation=25, ha="right", fontsize=8)
-        ax.set_ylabel("k€", fontsize=9); ax.grid(axis="y", alpha=0.25)
-        ax.set_title(f"VaR & ES — {conf*100:.0f}% — Portefeuille {pv/1e6:.0f}M€",
-                     fontsize=10, color="#C9A84C", pad=8)
-        ax.legend(fontsize=8); plt.tight_layout(); return fig
+        bars1 = ax.bar(x - w/2, vars_, w, color=colors,
+                       alpha=0.9, label="VaR", edgecolor="#0d1e38", linewidth=0.6)
+        ax.bar(x + w/2, ess_, w, color=colors,
+               alpha=0.42, label="ES (CVaR)",
+               edgecolor="#0d1e38", linewidth=0.6, hatch="//")
+        for bar, col in zip(bars1, colors):
+            h = bar.get_height()
+            ax.text(bar.get_x() + bar.get_width() / 2, h + max(vars_)*0.015,
+                    f"{h:.0f}k", ha="center", va="bottom",
+                    fontsize=7.5, color=col, fontweight="bold")
+        ax.set_xticks(x)
+        ax.set_xticklabels(short, rotation=22, ha="right", fontsize=9)
+        ax.set_ylabel("k€", fontsize=10, labelpad=6)
+        ax.grid(axis="y", alpha=0.18, linestyle="--")
+        ax.set_title(
+            f"VaR & Expected Shortfall — Niveau {conf*100:.0f}%  ·  "
+            f"Portefeuille {pv/1e6:.0f} M€",
+            fontsize=11, color="#C9A84C", pad=10, fontweight="bold")
+        ax.legend(fontsize=9, facecolor="#111f35", edgecolor="#2a3f5f",
+                  labelcolor="#d0daea")
+        for spine in ax.spines.values(): spine.set_edgecolor("#2a3f5f")
+        ax.tick_params(labelsize=8.5)
+        plt.tight_layout()
+        return fig
 
 
 def fig_distribution(rendements: np.ndarray, var_results: dict) -> plt.Figure:
     with plt.rc_context(PLT_DARK):
-        fig, ax = plt.subplots(figsize=(11,4))
-        ax.hist(rendements*100, bins=70, density=True, color="#2E6FD4",
-                alpha=0.55, edgecolor="#1a3060", lw=0.3, label="Rendements obs.")
+        fig, ax = plt.subplots(figsize=(12, 4.5))
+        fig.patch.set_alpha(0)
+        pos_mask = rendements >= 0
+        ax.hist(rendements[pos_mask] * 100, bins=55, density=True,
+                color="#1db87a", alpha=0.45, edgecolor="#0d1e38",
+                lw=0.2, label="Rdt ≥ 0")
+        ax.hist(rendements[~pos_mask] * 100, bins=55, density=True,
+                color="#2E6FD4", alpha=0.55, edgecolor="#0d1e38",
+                lw=0.2, label="Rdt < 0")
         mu, sig = rendements.mean(), rendements.std()
-        x = np.linspace(rendements.min(), rendements.max(), 300)
-        ax.plot(x*100, stats.norm.pdf(x,mu,sig)/100, color="#C9A84C",
-                lw=2, ls="--", label="N(μ,σ)")
-        colors_v = {"Historique":"#e05252","GARCH(1,1)":"#a855f7","TVE-GARCH":"#f97316"}
-        for meth, col in colors_v.items():
+        x_range = np.linspace(rendements.min(), rendements.max(), 400)
+        ax.plot(x_range * 100, stats.norm.pdf(x_range, mu, sig) / 100,
+                color="#C9A84C", lw=2.2, ls="--", label="N(μ, σ)", zorder=5)
+        var_styles = {
+            "Historique":  ("#e05252", "--"),
+            "GARCH(1,1)": ("#a855f7", "-."),
+            "TVE-GARCH":  ("#f97316", ":"),
+        }
+        for meth, (col, ls) in var_styles.items():
             if meth in var_results:
-                p = var_results[meth].get(0.99,{}).get("VaR_pct")
+                p = var_results[meth].get(0.99, {}).get("VaR_pct")
                 if p and not np.isnan(p):
-                    ax.axvline(-p*100, color=col, lw=1.5, ls=":",
-                               label=f"VaR 99% {meth}")
-        ax.set_xlabel("Rendement journalier (%)", fontsize=9)
-        ax.set_ylabel("Densité", fontsize=9)
-        ax.set_title("Distribution des rendements & VaR 99%", fontsize=10, color="#C9A84C", pad=8)
-        ax.legend(fontsize=7); ax.grid(True, alpha=0.2)
-        plt.tight_layout(); return fig
+                    ax.axvline(-p * 100, color=col, lw=1.8, ls=ls,
+                               label=f"VaR 99% {meth}", zorder=6)
+        ax.set_xlabel("Rendement journalier (%)", fontsize=10, labelpad=6)
+        ax.set_ylabel("Densité", fontsize=10, labelpad=6)
+        ax.set_title("Distribution des rendements  ·  VaR 99% superposée",
+                     fontsize=11, color="#C9A84C", pad=10, fontweight="bold")
+        ax.legend(fontsize=8, facecolor="#111f35", edgecolor="#2a3f5f",
+                  labelcolor="#d0daea")
+        ax.grid(True, alpha=0.15, linestyle="--")
+        for spine in ax.spines.values(): spine.set_edgecolor("#2a3f5f")
+        ax.tick_params(labelsize=8.5)
+        plt.tight_layout()
+        return fig
 
 
 def fig_backtesting(bt_results: dict) -> plt.Figure:
     methods = list(bt_results.keys())
-    short   = [m.replace("Variance-Covariance","VCV").replace("Cornish-Fisher","C-Fisher")
-               .replace("RiskMetrics","RiskM.") for m in methods]
+    short   = [m.replace("Variance-Covariance", "VCV")
+                .replace("Cornish-Fisher", "C-Fisher")
+                .replace("RiskMetrics", "RiskM.") for m in methods]
     p95 = [bt_results[m][0.95]["p_value"] for m in methods if 0.95 in bt_results[m]]
     p99 = [bt_results[m][0.99]["p_value"] for m in methods if 0.99 in bt_results[m]]
     with plt.rc_context(PLT_DARK):
-        fig, axes = plt.subplots(1,2, figsize=(11,3.5))
-        for ax, pvals, title in zip(axes, [p95, p99], ["Kupiec 95%","Kupiec 99%"]):
-            cols = ["#1db87a" if p>0.05 else "#e05252" for p in pvals]
-            ax.bar(short[:len(pvals)], pvals, color=cols, alpha=0.85)
-            ax.axhline(0.05, color="#C9A84C", lw=1.8, ls="--", label="Seuil 5%")
-            ax.set_xticks(range(len(short[:len(pvals)])))
-            ax.set_xticklabels(short[:len(pvals)], rotation=30, ha="right", fontsize=7.5)
-            ax.set_ylabel("p-value", fontsize=9); ax.grid(axis="y", alpha=0.2)
-            ax.set_title(title, fontsize=10, color="#C9A84C", pad=6)
-            ax.legend(fontsize=8)
-        plt.tight_layout(); return fig
+        fig, axes = plt.subplots(1, 2, figsize=(12, 4))
+        fig.patch.set_alpha(0)
+        for ax, pvals, title in zip(axes,
+                                    [p95, p99],
+                                    ["Test de Kupiec — 95%", "Test de Kupiec — 99%"]):
+            x = np.arange(len(short[:len(pvals)]))
+            for xi, (pv_, col) in enumerate(zip(pvals,
+                    ["#1db87a" if p > 0.05 else "#e05252" for p in pvals])):
+                ax.bar(xi, pv_, 0.6, color=col, alpha=0.85,
+                       edgecolor="#0d1e38", linewidth=0.7)
+                ax.text(xi, pv_ + 0.008, f"{pv_:.3f}",
+                        ha="center", va="bottom", fontsize=7.5,
+                        color=col, fontweight="bold")
+            ax.axhline(0.05, color="#C9A84C", lw=2, ls="--",
+                       label="Seuil α = 5%", alpha=0.9)
+            ax.axhspan(0, 0.05, alpha=0.06, color="#e05252")
+            ax.set_xticks(x)
+            ax.set_xticklabels(short[:len(pvals)],
+                               rotation=28, ha="right", fontsize=8.5)
+            ax.set_ylabel("p-value", fontsize=10, labelpad=6)
+            ax.set_ylim(0, max(max(pvals) * 1.2, 0.15))
+            ax.set_title(title, fontsize=11, color="#C9A84C",
+                         pad=8, fontweight="bold")
+            ax.legend(fontsize=9, facecolor="#111f35", edgecolor="#2a3f5f",
+                      labelcolor="#d0daea")
+            ax.grid(axis="y", alpha=0.15, linestyle="--")
+            for spine in ax.spines.values(): spine.set_edgecolor("#2a3f5f")
+            ax.tick_params(labelsize=8.5)
+        plt.tight_layout()
+        return fig
 
 
 # ══════════════════════════════════════════════════════════════════════════════
